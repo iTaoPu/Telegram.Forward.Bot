@@ -13,7 +13,7 @@ NFD2.0拥有无限配额（自建有每日1k消息上限），且托管在[cloud
 # NFD
 No Fraud / Node Forward Bot
 
-基于cloudflare worker的telegram 消息转发bot，整点/半点提醒，反欺诈功能
+基于cloudflare worker的telegram 消息转发bot，时间提醒，反欺诈功能
 
 ## 特点
 - 基于cloudflare worker搭建，能够实现以下效果
