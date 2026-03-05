@@ -8,10 +8,7 @@
 > 
 > 详细信息可以参考：[https://www.nodeseek.com/post-286885-1](https://www.nodeseek.com/post-286885-1)
 
-NFD2.0拥有无限配额（自建有每日1k消息上限），且托管在[cloudflare snippets](https://developers.cloudflare.com/rules/snippets/)，理论上不会掉线。如果需要自建，参考下面的自建教程。
-
-# NFD
-No Fraud / Node Forward Bot
+拥有无限配额（自建有每日1k消息上限），且托管在[cloudflare snippets](https://developers.cloudflare.com/rules/snippets/)，理论上不会掉线。如果需要自建，参考下面的自建教程。
 
 基于cloudflare worker的telegram 消息转发bot，时间提醒，反欺诈功能
 
