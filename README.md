@@ -38,13 +38,13 @@
 2. 打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；
 3.登录后点击「New Cron Job」创建第一个定时任务。
 4. 配置 EasyCron 定时任务：
-   URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
-   Cron Expression	整点：0 * * * * / 半点：30 * * * *
-   Time Zone	选择 Asia/Shanghai（北京时间）
-   HTTP Method	保持默认 GET（不用改）
-   其他	可选超时时间设为 30 秒，可选「失败时邮件提醒」
+    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+    - Cron Expression	整点：0 * * * * / 半点：30 * * * *
+    - Time Zone	选择 Asia/Shanghai（北京时间）
+    - HTTP Method	保持默认 GET（不用改）
+    - 其他	可选超时时间设为 30 秒，可选「失败时邮件提醒」
 6. 验证配置是否生效
-   URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
 
 ## 使用方法
 - 当其他用户给bot发消息，会被转发到bot创建者
