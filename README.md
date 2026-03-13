@@ -75,9 +75,9 @@
     - 举例
     | 目标时段 | 代码条件 |
     |---------|---------|
-    | 8:00 ~ 20:00 | beijingHour >= 8 && beijingHour <= 20 |
-    | 5:00 ~ 23:00 | beijingHour >= 5 && beijingHour <= 23 |
-    | 6:00 ~ 21:59（22点不推）` | beijingHour >= 6 && beijingHour < 22 |
+    | `8:00 ~ 20:00` | beijingHour >= 8 && beijingHour <= 20 |
+    | `5:00 ~ 23:00` | beijingHour >= 5 && beijingHour <= 23 |
+    | `6:00 ~ 21:59（22点不推）` | beijingHour >= 6 && beijingHour < 22 |
 
 - 验证配置是否生效
 - https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
