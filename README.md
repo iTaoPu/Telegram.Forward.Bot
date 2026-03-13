@@ -68,18 +68,18 @@
 
 如果你需要整点时间推送，可以使用任何支持 GET 请求的免费定时服务（如 EasyCron）。
 
-EasyCron 配置步骤
-   注册 EasyCron（免费定时工具）
-   打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；
-   登录后点击「New Cron Job」创建第一个定时任务。
-   配置 EasyCron 定时任务：
-    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
-    - Cron Expression	整点：0 * * * * / 半点：30 * * * *
-    - Time Zone	选择 Asia/Shanghai（北京时间）
-    - HTTP Method	保持默认 GET（不用改）
-    - 其他 可选超时时间设为 30 秒，可选「失败时邮件提醒」
-   验证配置是否生效
-     https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+**EasyCron 配置步骤**
+  **注册 EasyCron（免费定时工具）**
+  **打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；**
+  **登录后点击「New Cron Job」创建第一个定时任务。**
+  **配置 EasyCron 定时任务：**
+  **- URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET**
+  **- Cron Expression	整点：0 * * * * / 半点：30 * * * * **
+  **- Time Zone	选择 Asia/Shanghai（北京时间）**
+  **- HTTP Method	保持默认 GET（不用改）**
+  **- 其他 可选超时时间设为 30 秒，可选「失败时邮件提醒」**
+  **验证配置是否生效**
+    **https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET**
 
 建议设置每小时执行一次，机器人会向管理员发送当前北京时间。
 
