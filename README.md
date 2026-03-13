@@ -65,23 +65,22 @@
    如果显示“✅ Webhook 注册成功”，则 Webhook 设置完成。
 
 8. **配置定时推送（可选）**
+    - 触发事件中设置 Cron 触发器（整点推送）
+    - 在 Worker 详情页面，点击 触发器 选项卡。
+    - 找到 Cron Triggers 部分，点击 添加 Cron 触发器。
+    - 输入 Cron 表达式：0 * * * *（表示每小时整点触发）。
+    - 点击 保存。
 
-如果你需要整点时间推送，可以使用任何支持 GET 请求的免费定时服务（如 EasyCron）。
+    - 说明：虽然 Cron 每小时都会触发，但代码内部会判断当前北京时间是否在 6:00～22:00 之间（可自行更改），只有在这个时段才会实际推送消息，其他时间自动跳过。
+    - 举例
+|--------|------|
+|  目标时段 | 代码条件 |
+| 8:00 ~ 20:00 | beijingHour >= 8 && beijingHour <= 20 |
+| 5:00 ~ 23:00 | beijingHour >= 5 && beijingHour <= 23 |
+| 6:00 ~ 21:59（22点不推）` | beijingHour >= 6 && beijingHour < 22 |
 
-**EasyCron 配置步骤**
-- 注册 EasyCron（免费定时工具）
-- 打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；
-- 登录后点击「New Cron Job」创建第一个定时任务。
-- 配置 EasyCron 定时任务：
-- URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
-- Cron Expression	整点：0 * * * * / 半点：30 * * * * 
-- Time Zone	选择 Asia/Shanghai（北京时间）
-- HTTP Method	保持默认 GET（不用改）
-- 其他 可选超时时间设为 30 秒，可选「失败时邮件提醒」
 - 验证配置是否生效
 - https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
-
-建议设置每小时执行一次，机器人会向管理员发送当前北京时间。
 
 9. **设置命令菜单（可选）**  
 访问以下 URL 以设置机器人的命令菜单（同样替换域名和 `你的密钥` 为 `ENV_BOT_SECRET` 的值）：
