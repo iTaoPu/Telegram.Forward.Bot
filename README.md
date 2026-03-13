@@ -1,4 +1,4 @@
-# 🤖 Telegram 双向消息机器人（防诈骗增强版）
+# 🤖 Telegram 双向私聊消息机器人（时间提醒，防诈骗版）
 是一个部署在 Cloudflare Workers 上的 Telegram 机器人，实现用户与管理员双向私聊，并内置 2025 主流诈骗类型检测 + KV 可扩展防诈骗数据库，同时支持整点时间推送（适配免费定时工具）。
 
 ## ✨ 功能特点
@@ -23,36 +23,118 @@
     通过 /setcommands 接口动态设置机器人命令列表，使用更方便**
 
 ## 🚀 快速开始
-### 1. 准备工作
-    Cloudflare 账号 (https://dash.cloudflare.com)
-    Telegram Bot Token (https://t.me/BotFather)（创建机器人后获得）
-    管理员 Telegram User ID（可通过 https://t.me/userinfobot 获取）
-    自定义密钥（任意字符串，用于 URL 参数验证，例如 mysecret2025）
 
-### 2. 创建 Cloudflare Worker
-    登录 Cloudflare Dashboard，进入 Workers 和 Pages。
-    点击 创建应用程序 → 创建 Worker。
-    将本仓库的 worker.js 代码复制到编辑器中（或直接上传）。
-    点击 保存并部署。
+### 前置准备
 
-### 3. 配置环境变量
-   在 Worker 详情页，进入 设置 → 变量，添加以下环境变量：
-      | 变量名 | 说明 | 示例 |
+1. **Telegram Bot Token**：通过 [@BotFather](https://t.me/BotFather) 创建机器人，获取 Token。
+2. **Cloudflare 账户**：注册 [Cloudflare](https://dash.cloudflare.com/) 并开启 Workers 服务。
+3. **管理员 Telegram ID**：获取你自己的用户 ID（可通过 [@userinfobot](https://t.me/userinfobot) 获取）。
+4. **KV 命名空间**：在 Cloudflare Workers 中创建一个 KV 命名空间，用于存储诈骗数据。
+
+### 部署步骤
+
+1. **克隆/下载代码**  
+   将本项目代码保存为一个 JavaScript 文件（例如 `index.js`）。
+
+2. **创建 Worker**  
+   登录 Cloudflare Dashboard，进入 Workers 页面，点击“创建服务”，输入服务名称，选择“Hello World”模板。
+
+3. **粘贴代码**  
+   在 Worker 编辑器中，清空默认代码，将本项目代码粘贴进去。
+
+4. **绑定 KV 命名空间**  
+   - 在 Worker 设置中，点击“变量”，找到“KV 命名空间绑定”。
+   - 点击“添加绑定”，变量名称填写 **`cfbot`**（必须与此名称一致），选择你创建的 KV 命名空间。
+
+5. **设置环境变量**  
+   在“变量”页面的“环境变量”部分，添加以下变量：
+
+   | 变量名 | 说明 | 示例 |
    |--------|------|------|
    | `ENV_BOT_TOKEN` | Telegram 机器人 Token | `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
    | `ENV_BOT_SECRET` | 自定义密钥（用于验证 Webhook 请求和访问 `/setcommands`） | 任意随机字符串，如 `my_secret_2025` |
    | `ENV_ADMIN_UID` | 管理员 Telegram ID（数字字符串） | `123456789` |
 
-### 4. 绑定 KV 命名空间
-    机器人需要 KV 存储来保存诈骗数据、消息映射关系等。
-    在 Worker 详情页，进入 设置 → KV 命名空间绑定。
-    点击 添加绑定，变量名称必须为 nfd（代码中固定使用此名称）。
-    选择或创建一个 KV 命名空间（例如 tg-bot-kv）。
-    保存绑定。
+6. **部署 Worker**  
+   点击“保存并部署”。复制生成的 Worker 域名（例如 `your-worker.workers.dev`）。
 
-5. 设置 Webhook
-    你需要让 Telegram 将消息更新发送到你的 Worker 地址。
-    访问以下 URL（在浏览器中打开或使用 curl）：
-    https://你的worker域名/registerWebhook
-    如果配置正确，会返回 ✅ Webhook注册成功。
-    注意：注册 Webhook 时会自动带上 secret_token 参数，Worker 会验证该 token 以防止恶意请求。
+7. **注册 Webhook**  
+   在浏览器中访问以下 URL（替换 `your-worker.workers.dev` 为你的 Worker 域名）：
+   https://your-worker.workers.dev/registerWebhook
+
+   如果显示“✅ Webhook 注册成功”，则 Webhook 设置完成。
+
+8. **配置定时推送（可选）**
+
+如果你需要整点时间推送，可以使用任何支持 GET 请求的免费定时服务（如 EasyCron）。
+
+EasyCron 配置步骤
+   1. 注册 EasyCron（免费定时工具）
+   2. 打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；
+   3.登录后点击「New Cron Job」创建第一个定时任务。
+   4. 配置 EasyCron 定时任务：
+      - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+      - Cron Expression	整点：0 * * * * / 半点：30 * * * *
+      - Time Zone	选择 Asia/Shanghai（北京时间）
+      - HTTP Method	保持默认 GET（不用改）
+      - 其他 可选超时时间设为 30 秒，可选「失败时邮件提醒」
+   5. 验证配置是否生效
+    https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+
+建议设置每小时执行一次，机器人会向管理员发送当前北京时间。
+
+9. **设置命令菜单（可选）**  
+访问以下 URL 以设置机器人的命令菜单（同样替换域名和 `你的密钥` 为 `ENV_BOT_SECRET` 的值）：
+https://your-worker.workers.dev/setcommands?secret=你的密钥
+
+返回成功消息后，机器人的命令菜单将自动显示在 Telegram 客户端。
+
+## 📖 命令说明
+
+所有命令均可私聊机器人或在群组中使用（需注意权限）。
+
+| 命令 | 权限 | 描述 |
+|------|------|------|
+| `/start` | 所有人 | 显示欢迎信息和帮助 |
+| `/addscam` | 管理员 | 添加诈骗数据。格式：`/addscam 关键词 类型 描述` |
+| `/queryscam` | 所有人 | 查询诈骗数据。格式：`/queryscam 关键词` |
+| `/scamstats` | 所有人 | 查看诈骗数据库统计信息 |
+| `/initdb` | 管理员 | 初始化内置诈骗数据（覆盖现有数据） |
+| `/batchaddscam` | 管理员 | 批量导入诈骗数据（JSON 格式）。示例见下文 |
+
+## 🛠️ 使用示例
+
+### 添加诈骗数据
+/addscam 13800138000 刷单诈骗 该号码冒充客服诱导刷单
+
+### 查询诈骗数据
+/queryscam 13800138000
+
+### 查看统计
+/scamstats
+
+### 批量导入
+/batchaddscam [{"key":"13900000000","type":"贷款诈骗","desc":"无抵押低息贷款诈骗"},{"key":"安全账户","type":"公检法诈骗","desc":"公检法不会要求转账到安全账户"}]
+
+## 🔒 隐私与安全
+   机器人仅检测群聊中的文本消息，不会处理图片、文件等。
+   检测到的可疑消息会在群内公开回复警告，同时私下推送管理员，不会泄露用户隐私。
+   管理员 ID 和密钥存储在环境变量中，不会暴露。
+   所有数据（诈骗关键词）存储在 Cloudflare KV 中，安全可靠。
+   
+### 第二部分（复制以下内容）：
+## ⚙️ 自定义诈骗检测规则
+
+你可以在代码中的 `detectSuspiciousContent` 函数里修改 `patterns` 数组，增加或删除正则表达式规则，以适应新的诈骗手法。
+{ name: '新诈骗类型', regex: /(关键词1|关键词2)/gi }
+
+## 📝 注意事项
+   机器人必须为群组管理员才能在群内发送消息和回复。请将机器人添加为目标群组的管理员（至少拥有“发送消息”权限）。
+   KV 命名空间绑定名称必须为 nfd，否则无法存储数据。
+   ENV_BOT_SECRET 用于保护 Webhook 和命令菜单接口，请妥善保管。
+   初始化数据库（/initdb）会覆盖现有数据，请谨慎使用。
+   机器人不会处理非文本消息（如图片、贴纸等），也不会对私聊中的非命令消息做出响应。
+
+## 📄 许可证
+
+本项目采用 MIT 许可证。详见 LICENSE 文件。
