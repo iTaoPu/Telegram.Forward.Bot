@@ -461,13 +461,25 @@ addEventListener('fetch', event => {
   if (url.pathname === WEBHOOK) {
     event.respondWith(handleWebhook(event));
   } else if (url.pathname === '/registerWebhook') {
+    // 增加 secret 验证
+    const requestSecret = url.searchParams.get('secret');
+    if (requestSecret !== SECRET) {
+      event.respondWith(new Response('❌ 密钥错误', { status: 403 }));
+      return;
+    }
     event.respondWith(registerWebhook(event, url, WEBHOOK, SECRET));
   } else if (url.pathname === '/unRegisterWebhook') {
+    // 增加 secret 验证
+    const requestSecret = url.searchParams.get('secret');
+    if (requestSecret !== SECRET) {
+      event.respondWith(new Response('❌ 密钥错误', { status: 403 }));
+      return;
+    }
     event.respondWith(unRegisterWebhook(event));
   } else if (url.pathname === '/sendTime') {
-    event.respondWith(handleSendTime(event)); // 免费版：URL参数验证
+    event.respondWith(handleSendTime(event)); // 免费版：URL参数验证（内部已校验secret）
   } else if (url.pathname === '/setcommands') {
-    event.respondWith(handleSetCommands(event)); // 新增：设置机器人命令菜单
+    event.respondWith(handleSetCommands(event)); // 设置机器人命令菜单（内部已校验secret）
   } else {
     event.respondWith(new Response('✅ Telegram Bot 运行中（时间提醒, 防诈骗数据）', { status: 200 }));
   }
@@ -694,7 +706,12 @@ async function onMessage(message) {
 ├─ 您发送的所有消息都会转发给管理员 📤
 ├─ 管理员的回复会同步到这里 📥
 ├─ 🚨 2025反诈防护：自动检测所有主流诈骗类型 🛡️
-└─ 管理员命令：/addscam /queryscam /scamstats /initdb /batchaddscam
+├─ 管理员可使用以下命令管理诈骗数据库：
+├─/addscam - 添加诈骗数据（管理员）
+├─/queryscam - 查询诈骗数据
+├─/scamstats - 查看数据库统计
+├─/initdb - 初始化数据库（管理员）
+└─/batchaddscam - 批量导入（管理员）
 <i>使用提示：直接发消息即可，无需其他命令</i>
     `.trim();
     return sendMessage(chatId, startText);
@@ -714,7 +731,8 @@ async function onMessage(message) {
 
     // 复制管理员回复给用户
     await copyMessage(guestChatId, chatId, message.message_id);
-    return sendMessage(chatId, '<b>✅ 回复成功</b>\n已将消息发送给用户 ID: ${guestChatId}');
+    // 修正：使用模板字符串正确插入变量
+    return sendMessage(chatId, `<b>✅ 回复成功</b>\n已将消息发送给用户 ID: ${guestChatId}`);
   }
 
   // 普通用户消息处理（转发给管理员）
