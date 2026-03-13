@@ -33,7 +33,7 @@
 7. 点击`Quick Edit`，复制[这个文件](./worker.js)到编辑器中
 8. 通过打开`https://xxx.workers.dev`来注册websoket
 9. 验证命令菜单是否生效
-    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+    - URL：https://你的Worker域名/setcommands?secret=ENV_BOT_SECRET
 
 ## EasyCron 配置步骤（关键）
 1. 注册 EasyCron（免费定时工具）
