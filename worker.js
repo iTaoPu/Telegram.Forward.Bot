@@ -627,6 +627,11 @@ async function onUpdate(update) {
  * @param {Object} message 消息对象
  */
 async function onMessage(message) {
+  // 仅处理私聊消息，群组/频道消息全部忽略（不回复任何内容）
+  if (message.chat.type !== 'private') {
+    return;
+  }
+
   const chatId = message.chat.id;
   const isAdmin = chatId.toString() === ADMIN_UID;
 
