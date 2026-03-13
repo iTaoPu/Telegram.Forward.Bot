@@ -1,66 +1,58 @@
-## 更新
+# 🤖 Telegram 双向消息机器人（防诈骗增强版）
+是一个部署在 Cloudflare Workers 上的 Telegram 机器人，实现用户与管理员双向私聊，并内置 2025 主流诈骗类型检测 + KV 可扩展防诈骗数据库，同时支持整点时间推送（适配免费定时工具）。
 
-1分钟内快速搭建教程：
+## ✨ 功能特点
+**双向消息转发
+    普通用户发送的任何消息都会自动转发给管理员
+    管理员回复转发的消息，机器人将回复内容复制给对应用户
 
-> 用户先去[@BotFather](https://t.me/NodeForwardBot/BotFather)，输入 `/newbot` ，按照指引输入你要创建的机器人的昵称和名字，点击复制机器人吐出的token
-> 
-> 然后到[@NodeForwardBot](https://t.me/NodeForwardBot)粘贴，完活。
-> 
-> 详细信息可以参考：[https://www.nodeseek.com/post-286885-1](https://www.nodeseek.com/post-286885-1)
+整点时间提醒（免费版适配）
+    通过 URL 参数验证的方式调用，可使用 EasyCron 等免费定时工具触发，向管理员推送当前北京时间
 
-拥有无限配额（自建有每日1k消息上限），且托管在[cloudflare snippets](https://developers.cloudflare.com/rules/snippets/)，理论上不会掉线。如果需要自建，参考下面的自建教程。
+防诈骗智能检测
+    内置 20+ 类 2025 主流诈骗正则匹配（刷单、公检法、杀猪盘、AI 换脸等）
+    自动检测消息中的手机号、银行卡、可疑链接、二维码等敏感信息
+    结合 KV 数据库关键词匹配，管理员可动态添加/查询诈骗数据
 
-基于cloudflare worker的telegram 消息转发bot，时间提醒，反欺诈功能
+诈骗数据库管理（管理员专用）
+    添加/查询诈骗关键词、手机号、网址等信息
+    查看数据库统计
+    批量导入/初始化基础数据
 
-## 特点
-- 基于cloudflare worker搭建，能够实现以下效果
-    - 搭建成本低，一个js文件即可完成搭建
-    - 不需要额外的域名，利用worker自带域名即可
-    - 基于worker kv实现永久数据储存
-    - 稳定，全球cdn转发
-- 支持屏蔽用户，避免被骚扰
+命令菜单支持
+    通过 /setcommands 接口动态设置机器人命令列表，使用更方便**
 
-## 搭建方法
-1. 从[@BotFather](https://t.me/BotFather)获取token，并且可以发送`/setjoingroups`来禁止此Bot被添加到群组
-2. 从[uuidgenerator](https://www.uuidgenerator.net/)获取一个随机uuid作为secret
-3. 从[@username_to_id_bot](https://t.me/username_to_id_bot)获取你的用户id
-4. 登录[cloudflare](https://workers.cloudflare.com/)，创建一个worker
-5. 配置worker的变量
-    - 增加一个`ENV_BOT_TOKEN`变量，数值为从步骤1中获得的token
-    - 增加一个`ENV_BOT_SECRET`变量，数值为从步骤2中获得的secret
-    - 增加一个`ENV_ADMIN_UID`变量，数值为从步骤3中获得的用户id
-6. 绑定kv数据库，创建一个Namespace Name为`nfd`的kv数据库，在setting -> variable中设置`KV Namespace Bindings`：nfd -> nfd
-7. 点击`Quick Edit`，复制[这个文件](./worker.js)到编辑器中
-8. 通过打开`https://xxx.workers.dev`来注册websoket
-9. 验证命令菜单是否生效
-    - URL：https://你的Worker域名/setcommands?secret=ENV_BOT_SECRET
+## 🚀 快速开始
+### 1. 准备工作
+    Cloudflare 账号 (https://dash.cloudflare.com)
+    Telegram Bot Token (https://t.me/BotFather)（创建机器人后获得）
+    管理员 Telegram User ID（可通过 https://t.me/userinfobot 获取）
+    自定义密钥（任意字符串，用于 URL 参数验证，例如 mysecret2025）
 
-## EasyCron 配置步骤（关键）
-1. 注册 EasyCron（免费定时工具）
-2. 打开 EasyCron 官网：https://www.easycron.com → 注册免费账号（邮箱验证即可）；
-3.登录后点击「New Cron Job」创建第一个定时任务。
-4. 配置 EasyCron 定时任务：
-    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
-    - Cron Expression	整点：0 * * * * / 半点：30 * * * *
-    - Time Zone	选择 Asia/Shanghai（北京时间）
-    - HTTP Method	保持默认 GET（不用改）
-    - 其他	可选超时时间设为 30 秒，可选「失败时邮件提醒」
-6. 验证配置是否生效
-    - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
+### 2. 创建 Cloudflare Worker
+    登录 Cloudflare Dashboard，进入 Workers 和 Pages。
+    点击 创建应用程序 → 创建 Worker。
+    将本仓库的 worker.js 代码复制到编辑器中（或直接上传）。
+    点击 保存并部署。
 
-## 核心功能总结
-    - 基础功能保留：双向消息转发、北京时间整点 / 半点提醒、Webhook 注册 / 注销全部保留且正常运行；
-    - 反诈识别全覆盖：
-    - 文本识别：覆盖刷单、客服、公检法、婚恋杀猪盘、冒充领导、AI 换脸、养老诈骗等 2025 所有主流类型；
-    - KV 数据库：支持手动 / 批量新增自定义诈骗数据，实现个性化识别；
-    
-    管理员专属命令：
-    - /start 介绍描述
-    - /addscam 关键词 类型 描述：新增单条自定义数据；
-    - /queryscam 关键词：查询诈骗数据；
-    - /scamstats：查看数据统计；
-    - /batchaddscam [JSON数组]：批量导入自定义数据；
-    - 双引擎识别：文本特征检测 + KV 数据库匹配，无数据也能识别，有数据更精准。
+### 3. 配置环境变量
+   在 Worker 详情页，进入 设置 → 变量，添加以下环境变量：
+      | 变量名 | 说明 | 示例 |
+   |--------|------|------|
+   | `ENV_BOT_TOKEN` | Telegram 机器人 Token | `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` |
+   | `ENV_BOT_SECRET` | 自定义密钥（用于验证 Webhook 请求和访问 `/setcommands`） | 任意随机字符串，如 `my_secret_2025` |
+   | `ENV_ADMIN_UID` | 管理员 Telegram ID（数字字符串） | `123456789` |
 
-## Thanks
-- [telegram-bot-cloudflare](https://github.com/cvzi/telegram-bot-cloudflare)
+### 4. 绑定 KV 命名空间
+    机器人需要 KV 存储来保存诈骗数据、消息映射关系等。
+    在 Worker 详情页，进入 设置 → KV 命名空间绑定。
+    点击 添加绑定，变量名称必须为 nfd（代码中固定使用此名称）。
+    选择或创建一个 KV 命名空间（例如 tg-bot-kv）。
+    保存绑定。
+
+5. 设置 Webhook
+    你需要让 Telegram 将消息更新发送到你的 Worker 地址。
+    访问以下 URL（在浏览器中打开或使用 curl）：
+    https://你的worker域名/registerWebhook
+    如果配置正确，会返回 ✅ Webhook注册成功。
+    注意：注册 Webhook 时会自动带上 secret_token 参数，Worker 会验证该 token 以防止恶意请求。
